@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      html { height: 100% }
+      body { height: 100%; margin: 0; padding: 0 }
+      #map-canvas {
+        height: 100%;
+      }
+    </style>
+    <script src="https://maps.googleapis.com/maps/api/js"></script>
+    <script>
+      var map;
+      function initialize() {
+        var mapCanvas = document.getElementById('map-canvas');
+        var mapOptions = {
+          center: new google.maps.LatLng(25.0420118, 121.5655313),
+          zoom: 14,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+        map = new google.maps.Map(mapCanvas, mapOptions);
+        
+        // map.data.loadGeoJson('data.json');
+        google.maps.event.addListener(map, 'bounds_changed', showMarker);  
+      }
+
+      function showMarker() {
+        console.log("show marker : " + map.getBounds());
+        var position = [[25.0243705, 121.5881054, "marker 1"], 
+                        [25.03378304228847, 121.59763260642086, "marker 2"]]
+
+        for(var i = 0 ; i < position.length ; i++) {
+            var myLatlng = new google.maps.LatLng(position[i][0], position[i][1]);
+            var marker = new google.maps.Marker({
+                position: myLatlng,
+                map: map,
+                title: position[i][2],
+                icon: "images/marker_s.png"
+            });
+            
+            var infowindow = new google.maps.InfoWindow({
+                content: position[i][2]
+            });
+
+            google.maps.event.addListener(marker, 'click', (function(marker, infowindow) {
+                return function() {
+                  // infowindow.setContent(content);
+                  infowindow.open(map,marker);
+                };
+            })(marker, infowindow));
+        }
+      }
+
+      /*
+      Request LatLong data via Web Services
+      */
+      function showMarkerAjax() {
+        // console.log('show marker : ' + map.getBounds());
+        var northEastLat = map.getBounds().getNorthEast().lat();
+        var northEastLng = map.getBounds().getNorthEast().lng();
+
+        var southWestLat = map.getBounds().getSouthWest().lat();
+        var southWestLng = map.getBounds().getSouthWest().lng();
+
+        var xmlhttp;
+        if (window.XMLHttpRequest) {// code for IE7+, Firefox, Chrome, Opera, Safari
+            xmlhttp = new XMLHttpRequest();
+        }
+        else {// code for IE6, IE5
+            xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xmlhttp.onreadystatechange = function () {
+            if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                var responseTxt = xmlhttp.responseText;
+                //console.log("show marker response : " + responseTxt);
+                var jArr = JSON.parse(responseTxt);
+
+                // Add Marker depending on data format.
+                for (var i = 0 ; i < jArr.length ; i++) {
+                    var item = jArr[i];
+                    var location = item.Location;
+                    var myLatlng = new google.maps.LatLng(location.Latitude, location.Longitude);
+                    var marker = new google.maps.Marker({
+                        position: myLatlng,
+                        map: map,
+                        title: item.name,
+                        icon: "images/marker_s.png"
+                        });
+                        //console.log("<lat, lng> : <" + location.Latitude + ", " + location.Longitude + ">");
+
+                        var infowindow = new google.maps.InfoWindow({
+                            content: "<b>" + item.name + "</b>"
+                        });
+
+                        google.maps.event.addListener(marker, 'click', (function (marker, infowindow) {
+                            return function () {
+                                infowindow.open(map, marker);
+                            }
+                        })(marker, infowindow));
+
+                    }
+                }
+            }
+
+            // Change the url depends on backend service.
+            var url = "/api/map/bounds?southWestLat=" + southWestLat +
+                "&southWestLng=" + southWestLng +
+                "&northEastLat=" + northEastLat +
+                "&northEastLng=" + northEastLng;
+            xmlhttp.open("GET", url, true);
+            
+        xmlhttp.send();
+      }
+
+      google.maps.event.addDomListener(window, 'load', initialize);
+      
+      // Try W3C Geolocation (Preferred)
+      var initialLocation;
+      var taipei = new google.maps.LatLng(25.041785650597348, 121.56564269820248);
+      var browserSupportFlag = new Boolean();
+
+      if (navigator.geolocation) {
+          browserSupportFlag = true;
+          navigator.geolocation.getCurrentPosition(function (position) {
+              initialLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+              //console.log("map in navigator : " + map);
+              //console.log("map in navigator bounds : " + map.getBounds());
+              map.setCenter(initialLocation);
+          }, function () {
+              handleNoGeolocation(browserSupportFlag);
+          });
+      }
+          // Browser doesn't support Geolocation
+      else {
+          browserSupportFlag = false;
+          handleNoGeolocation(browserSupportFlag);
+      }
+
+      function handleNoGeolocation(errorFlag) {
+          if (errorFlag == true) {
+              //console.log("Geolocation service failed.");
+              initialLocation = taipei;
+          } else {
+              //console.log("Your browser doesn't support geolocation.");
+              initialLocation = taipei;
+          }
+          map.setCenter(initialLocation);
+      }
+
+    </script>
+  </head>
+  <body
+    <div id="map-canvas"></div>
+  </body>
+</html>

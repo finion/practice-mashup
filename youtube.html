@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style type="text/css">
+            #banner{ min-width: 1100px; min-height: 550px; position: relative;
+                background-size: cover;
+                background: url('http://www.billmaster.cc/Images/BillMasterWebCoverLargeTV.jpg') no-repeat center top;
+            }
+            #ytplayer{ width: 267px; height: 150px;
+                top: 60px; right: 80px; position: absolute; }
+            
+            #play{ content:url('images/play_button.png'); top: 60px; right: 80px; position: absolute; }
+            
+        </style>
+        
+        <!-- Add jQuery library -->
+        <script type="text/javascript" src="https://code.jquery.com/jquery-1.8.2.js"></script>
+        
+        <!-- Add fancyBox -->
+        <link rel="stylesheet" href="fancybox/source/jquery.fancybox.css?v=2.1.5" type="text/css" media="screen" />
+        <script type="text/javascript" src="fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+        <script type="text/javascript" src="fancybox/source/helpers/jquery.fancybox-media.js?v=1.0.6"></script>
+
+        <script type="text/javascript">
+            $(document).ready(function() {
+
+                var height = screen.height;
+                $('.fancybox-media').fancybox({
+                    'width' : 16/9. * height,
+                    'height' : height,
+                    openEffect  : 'none',
+                    closeEffect : 'none',
+                    helpers : {
+                        media : {}
+                    }
+                });
+            });
+
+        </script>
+    </head>
+    <body>
+        <section id="banner">
+            
+            <div id="yt_container">
+                <div id="ytplayer"></div>
+                <a class="fancybox-media" href="https://www.youtube.com/embed/NvrL8vQgisY">
+                  <div id="play"></div>
+                </a>
+            </div>
+            <script>
+              // Load the IFrame Player API code asynchronously.
+              var tag = document.createElement('script');
+              tag.src = "https://www.youtube.com/iframe_api";
+              var firstScriptTag = document.getElementsByTagName('script')[0];
+              firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+              // Replace the 'ytplayer' element with an <iframe> and
+              // YouTube player after the API code downloads.
+              var player;
+              function onYouTubeIframeAPIReady() {
+                  player = new YT.Player('ytplayer', {
+                      videoId: 'NvrL8vQgisY',
+                      playerVars: { 'autoplay': 1, 'controls': 0,
+                                    'loop': 1, 'playlist': 'NvrL8vQgisY' },
+                      events: {
+                        'onReady': onPlayerReady
+                      }
+                  });
+              }
+              function onPlayerReady(event) {
+                event.target.mute();
+              }
+
+            </script>
+
+            <div id="google_play" style="position: relative; margin:0 auto; top: 330px; left: 50px; width: 1100px;">
+                <a href="https://play.google.com/store/apps/details?id=cc.billmaster.app" style="text-decoration: none;">
+                    <img alt="Get it on Google Play"
+                         src="http://www.billmaster.cc/Images/google_play/google_play_en_generic_rgb_wo_60.png" />
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    <img src="http://www.billmaster.cc/Images/google_play/google_play_qrcode.png" alt="Get it on Google Play"
+                         style="width: 60px;" />
+                </a>
+            </div>
+
+        </section>
+    </body>
+</html>
